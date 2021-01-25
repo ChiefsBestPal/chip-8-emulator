@@ -1,0 +1,6 @@
+canvas {
+  border: 3px solid red;
+}
+#mainScreen {
+  position: relative;
+}

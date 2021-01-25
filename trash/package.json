@@ -1,0 +1,20 @@
+{
+  "name": "chip8-interpreterjs",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "chip8.js",
+  "scripts": {
+    "build": "browserify program/visualsrender.js -o bundle.js",
+    "buildTwo": "browserify ./program/chip8.js -o bundleTwo.js",
+    "start": "node -r esm ./program/chip8.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "browserify": "^17.0.0"
+  },
+  "dependencies": {
+    "esm": "^3.2.25"
+  }
+}

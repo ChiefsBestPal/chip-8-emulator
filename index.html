@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Testing Interface for Chip8</title>
+    <link rel="stylesheet" href="style.css">
+
+
+</head>
+<body>
+    <h2> center me </h2>
+    <canvas id="canvas" width="400" height="100" style="border:1px solid #000000;">
+    </canvas>
+    <!-- <canvas id="mainScreen"></canvas> -->
+
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script> -->
+    <p></p>
+
+
+    <script defer type="module" src="program/main.js"></script> <!-- preload this before js script-->
+    <script type="module" src="program/chip8.js"></script>
+
+    <button onclick="document.getElementById('file-input').click();">Open</button>
+    <input id="file-input" type="file" name="name" style="display: none;" />
+</body>
+</html>

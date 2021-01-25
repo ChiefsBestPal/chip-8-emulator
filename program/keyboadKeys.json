@@ -1,0 +1,22 @@
+
+{
+  "NumpadSubtract-": 109,
+  "NumpadAdd+": 107,
+  "NumpadEnterEnt": 13,
+  "NumpadDecimal.": 46,
+
+  "NumpadMultiply*": 106,
+  "Numpad9": 33,
+  "Numpad6": 39,
+  "Numpad3": 34,
+
+  "NumpadDivide/": 111,
+  "Numpad8": 38,
+  "Numpad5": 12,
+  "Numpad2": 40,
+
+  "NumLock": 144,
+  "Numpad7": 103,
+  "Numpad4": 100,
+  "Numpad1": 97
+}
