@@ -1,18 +1,25 @@
 //  4kb of RAM, the first 512Kb, 16 8bits registers, 1 16bits register I to store memory addresses, 2 8bits special registers (TIMERS for delay and sound),PC, a stack 16 16bits values
 const Uint16 = (n=0x0) => {return n & 0xFFF}
 const Uint8 = (n=0x0) => {return n & 0xFF}
-class CPU {
-    constructor(visuals, keyboard,audio){
+import visualsrender from './visualsrender.js'
+import Keyboard from './keyboard.js';
+import Speaker from './audio.js';
 
+const visuals = new visualsrender(10);
+const keyboard = new Keyboard();
+const audio = new Speaker();
+class CPU {
+    constructor(){
+        
         this.visuals = visuals;
         this.keyboard = keyboard;
         this.audio = audio;
 
-        this.isPaused = false
+        this.keyboard.await = false
 
         //! allocated memory
-        this.RAM = new Uint8ClampedArray(4096); //0x000:0 -> 0xFFF:4095 Buffer properties and index limit at 0 and 255
-        
+        this.RAM = new Uint8Array(4096); //0x000:0 -> 0xFFF:4095 Buffer properties and index limit at 0 and 255
+                                   //*make it clamped for index restriction
         //! Registers
         this.V = new Uint8Array(16); //from V0 to VF, VF is used as flag for instructions
         this.I = Uint16(); //? rightmost 12 bits used to store memory addresses
@@ -56,32 +63,8 @@ class CPU {
         }
     }
 
-    /**
-    * @param {array Buffer} ROM is read
-    */
-    //program read are typed as ArrayBuffer//! USE FILE READER***************************************************************************
-    loadROM(programName){
-        const request = new XMLHttpRequest;
-        // request.onreadystatechange = function() {
-        //     if (this.readyState == 4 && this.status == 200) {
-        //       callback.call(this, this.response);
-        //     }
-        //   };
-        request.onload = function() {
-            if (request.response){
-                let program = new Uint8Array(request.response)
-            
-                for (let pos = 0; pos < program.length; pos++){ //starts at ix 0x200
-                    this.RAM[512 + pos] = program[pos]
-                }
-            }
-        }
-        request.open('GET','https://github.com/Erigitic/chip8-emulator/tree/master/roms' + programName,true);//removed GET args[0]
-        request.responseType = 'arraybuffer'
 
-        request.send();
 
-    } 
     refreshTimers() {
         if (this.delayTimer > 0){
             
@@ -93,9 +76,7 @@ class CPU {
         }
     }
 
-    tick(){
-
-    }
+    //*tick(){}
 //  All instructions are 2 bytes long and are stored most-significant-byte first. In memory, the first byte of each instruction should be located at an even addresses. 
 // If a program includes sprite data, it should be padded so any instructions following it will be properly situated in RAM.
 
@@ -119,7 +100,8 @@ class CPU {
                 switch (opcode) {
                     case 0x00E0: //00E0 - CLS
                         // Clear the display
-                        this.visuals.clear() //[...Array(32)].map(e=> new Array(64))
+                        console.log(this.visuals)
+                        this.visuals.clearDisplay() //[...Array(32)].map(e=> new Array(64))
                         break;
                     case 0x00EE:// 00EE - RET
                         // Return from a subroutine.
@@ -247,11 +229,13 @@ class CPU {
                 for(let row = 0; row < sprite_layers; ++row){
                     let sprite = this.RAM[location + row]//loc++ 
                     for(let col = 0;col < sprite_width;++col){
-                        bleftmost = sprite & (0x0080 >> row)
+                        let bleftmost = sprite & (0x0080 >> row)
                         if (bleftmost !== 0){
-                            if(this.visuals.drawPixel(this.V[x] + col,this.V[y]+row) === 1){
+                            // let VISUAL = new visualsrender(10)
+                            if(visuals.drawPixel(this.V[x] + col,this.V[y]+row) === 1){
                                 this.V[0xF] = 1; //XORed pixel = erased
-                            } 
+                            }
+                            // this.visuals = VISUAL 
                         }
                         sprite = sprite << 1//last should be 0000 0000
                     }
@@ -284,7 +268,7 @@ class CPU {
                         break;
                     case 0x000A://Fx0A - LD Vx, K
                         //Wait for a key press, store the value of the key in Vx.//!ADD !AWAIT in cycles
-                        
+                        console.log('Hate this instruction')
                         this.keyboard.await = true;
                         this.keyboard.SetKeyPress = function(key) { //dont use arrow func with bind and this obj
                           this.V[x] = key
@@ -302,11 +286,11 @@ class CPU {
                         break;
                     case 0x001E://Fx1E - ADD I, Vx
                         //Set I = I + Vx.
-                        this.I += uInt16(this.V[x])
+                        this.I += Uint16(this.V[x])
                         break;
                     case 0x0029://Fx29 - LD F, Vx
                         //Set I = location of sprite for digit Vx.
-                        this.I = uInt16(0x0000 + this.V[x] * 0o5)
+                        this.I = Uint16(0x0000 + this.V[x] * 0o5)
                         break;
                     case 0x0033:// Fx33 - LD B, Vx
                         // Store BCD representation of Vx in memory locations I, I+1, and I+2.

@@ -33,8 +33,8 @@ let KEYMAP = {
 const main = () => {
   // let speaker = new audio();
   // speaker.run()
-  let clavier = new Keyboard();
-  clavier.await = true;
+  // let clavier = new Keyboard();
+  // clavier.await = true;
   // let arr2 = []
   // clavier.SetKeyPress = function(key) { //dont use arrow func with bind and this obj
   //   arr2 = [key]
@@ -49,41 +49,33 @@ const main = () => {
     new Array(64).fill(0).map((e) => (Math.random() >= 0.3 ? 0 : 1))
   );
   console.table(arr);
-
+  arr = arr.flat()
+  console.table(arr)
   const canvas = document.querySelector("canvas");
-  const cellSide = 50;
+  const cellSide = 10;
   canvas.width = 64 * cellSide;
   canvas.height = 32 * cellSide;
 
-  arr[15][31] = 2;
-  arr[15][32] = 2;
-  arr[16][31] = 2;
-  arr[16][32] = 2;
+  
   var ctx = canvas.getContext("2d");
-  for (let i = 0; i < arr.length; i++) {
-    for (let j = 0; j < arr[i].length; j++) {
-      let x = j * cellSide;
-      let y = i * cellSide;
+  for(let i = 0; i < arr.length; i++){
+    let cellColor = "#000000";
+    let coords = [i % 64,Math.floor(i / 64)]
+    coords = coords.map(el => el * cellSide)
+    let X = coords[0],Y=coords[1]
 
-      var cellColor = "#000000";
-      if (arr[i][j] === 1) {
-        cellColor = "#107D1C";
-      }
-      if (arr[i][j] == 2) {
-        cellColor = "#FF0000";
-      }
-
-      ctx.beginPath();
-      ctx.fillStyle = cellColor;
-      ctx.fillRect(x, y, cellSide, cellSide);
+    if (arr[i] === 1){
+      cellColor = "#107D1C"
     }
+    ctx.fillStyle = cellColor;
+    ctx.fillRect(X, Y, cellSide, cellSide);
   }
+
   console.log("MAIN")
 
   //let reader = new FileReader(); //!make dropzone to load programs on website!
 };
-
-
+main()
 async function testing(hashMap) {
   let res = undefined;
   console.log("waiting keypress..");
@@ -101,7 +93,6 @@ async function testing(hashMap) {
     console.log("Over !!!!!!!!");
   
 }
-let pause = true
 const waitValidKeyPress = async () => {
   await testing(KEYMAP);
   main();
@@ -113,3 +104,21 @@ const waitValidKeyPress = async () => {
 
 
 
+  // for (let i = 0; i < arr.length; i++) {
+  //   for (let j = 0; j < arr[i].length; j++) {
+  //     let x = j * cellSide;
+  //     let y = i * cellSide;
+
+  //     var cellColor = "#000000";
+  //     if (arr[i][j] === 1) {
+  //       cellColor = "#107D1C";
+  //     }
+  //     if (arr[i][j] == 2) {
+  //       cellColor = "#FF0000";
+  //     }
+
+  //     //ctx.beginPath();
+  //     ctx.fillStyle = cellColor;
+  //     ctx.fillRect(x, y, cellSide, cellSide);
+  //   }
+  // }

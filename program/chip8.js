@@ -1,17 +1,49 @@
-import visualsrender from './visualsrender.js'
+//* import visualsrender from './visualsrender.js'
 import CPU from './CPU.js'
-import Keyboard from './keyboard.js';
-import Speaker from './audio.js';
+//* import Keyboard from './keyboard.js';
+//* import Speaker from './audio.js';
 
-const renderer = new visualsrender(10);
-const keyboard = new Keyboard();
-const speaker = new Speaker();
+//* const visuals = new visualsrender(10);
+//* const keyboard = new Keyboard();
+//* const audio = new Speaker();
 
-const cpu = new CPU(renderer,keyboard,speaker); 
+const cpu = new CPU(); 
 
-//*https://github.com/loociano/ESboy/blob/master/src/renderer.js
+var CLOCK_SPEED = 16;
+function loadROM(programName){
+        
+    // @param {array Buffer} ROM is read
+    
+    //program read are typed as ArrayBuffer//! USE FILE READER***************************************************************************
+    const request = new XMLHttpRequest;
+    // request.onreadystatechange = function() {
+    //     if (this.readyState == 4 && this.status == 200) {
+    //       callback.call(this, this.response);
+    //     }
+    //   };
+    //console.log(this.RAM)
+    console.log(cpu.RAM)
+    request.onload = function() {
+        console.log(cpu.RAM)
+        if (request.response){
 
-var CLOCK_SPEED = 10;
+            cancelAnimationFrame(loop);//! Maybe err
+            cpu.loadSprites();      //!Maybe err
+            let program = new Uint8Array(request.response)
+        
+            for (let pos = 0; pos < program.length; pos++){ //starts at ix 512 (bit)
+                cpu.RAM[0x200 + pos] = program[pos]
+            }
+            loop = requestAnimationFrame(tick)//! maybe err
+        }
+    }
+    const url = "./ROMS/programs/"
+    request.open('GET',url + programName);//removed GET args[0]//3rdparam: true
+    request.responseType = 'arraybuffer'
+
+    request.send();
+
+}
 
 function sleep (time) {
     return new Promise((resolve) => setTimeout(resolve, time));
@@ -35,10 +67,14 @@ function cycle() {
     }
 
     if (cpu.soundTimer > 0) {
-        speaker.play(440);
+        // ? This will play the audio at each cycle
+        // which means it will make a chaotic sound
+        // unless your sound generator only generates sound
+        // for 1/60 s
+        cpu.audio.play(440);
     } 
     else {
-        speaker.stop();
+        cpu.audio.stop();
     }
 
     cpu.visuals.render();
@@ -48,30 +84,37 @@ function cycle() {
 
 let loop;
 
-let fps = 60, fpsInterval, startTime, now, then, elapsed;
+let fps = 60, fpsInterval, startTime, now, then, delta;
 
 function init() {
 	fpsInterval = 1000 / fps;
-	then = Date.now();
+	then = Date.now(); //setInterval
 	startTime = then;
 
-	cpu.loadSprites();
-	cpu.loadROM('BLINKY');
-	loop = window.requestAnimationFrame(step);
+    cpu.loadSprites();
+	loadROM('IBM Logo.ch8');
+	loop = requestAnimationFrame(tick);
 }
 
-function step() {
+function tick() {
 	now = Date.now();
-	elapsed = now - then;
+	delta = now - then; //!DEBUG!!!!!!!!!!!!!
 
-	if (elapsed > fpsInterval) {
+	if (delta > fpsInterval) {
 		cycle();
 	}
 
-	loop = window.requestAnimationFrame(step);
+    loop = requestAnimationFrame(tick);
 }
 
-init();
+// init();
 
+const init2 = () => {
+    cpu.loadSprites();
+	loadROM('IBM Logo.ch8');
+    setInterval(cycle, 1000/60);
+};
 
+init2();
 
+console.log('sdad')

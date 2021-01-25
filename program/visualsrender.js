@@ -14,10 +14,10 @@ const defaultHeight = 32; //rows
 class visualsrender {
 
 
-    constructor(scaled) {
+    constructor(scale) {
 
 
-        this.scale = scaled;
+        this.scale = scale;
 
         this.canvas = document.querySelector('canvas'); //create accessors with lang
         this.ctx = this.canvas.getContext('2d');
@@ -32,10 +32,12 @@ class visualsrender {
 
 
     }
-    reset(){
+    resetCanvas(){
         this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height)
     }
-
+    clearDisplay() {
+        this.displayPixels = new Array(2048);
+    }
 
     drawPixel(x, y) {
         if (x > defaultWidth) {
@@ -51,22 +53,27 @@ class visualsrender {
         }
         const cols = defaultWidth
         let pixelLoc = x + y*defaultWidth//1D array
-        this.displayPixels[pixelLoc] ^= 0b1; //switch on and off
+        this.displayPixels[pixelLoc] ^= 1; //switch on and off
 
         return !!this.displayPixels[pixelLoc] //return True if pixel there, False if not
     }
-    //clear: this.displayPixels = new Array(2048);
 
     render(){
-        this.reset();
+        // let bool = (el) => el === 1 || el === true;
+        // console.log(this.displayPixels.some(bool))
+        this.resetCanvas()
         for(let i = 0; i < 2048; i++){
+            let cellColor = "#000000"
             let coords = [i % defaultWidth,Math.floor(i / defaultWidth)]
             coords = coords.map(el => el * this.scale)
-            let x = coords[0],y=coords[1]
-            if(this.displayPixels[i] === 1){
-                this.ctx.fillStyle = "#0000FF";
-                this.ctx.fillRect = (x,y,this.scale,this.scale) //default is min 1
+            let X = coords[0],Y=coords[1]
+            if(this.displayPixels[i] === 1){ //===1
+                cellColor = "#107D1C"
             }
+            //!this.ctx.beginPath();
+            this.ctx.fillStyle = cellColor;
+            this.ctx.fillRect = (X,Y,this.scale,this.scale) //default is min 1
+            
         }
     }
 
