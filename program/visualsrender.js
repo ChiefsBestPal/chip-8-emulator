@@ -36,10 +36,11 @@ class visualsrender {
         this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height)
     }
     clearDisplay() {
-        this.displayPixels = new Array(2048);
+        this.displayPixels = new Array(64 * 32);
     }
 
     drawPixel(x, y) {
+        console.log("drawPixel", x, y);
         if (x > defaultWidth) {
             x -= defaultWidth;
         } else if (x < 0) {
@@ -51,7 +52,6 @@ class visualsrender {
         } else if (y < 0) {
             y += defaultHeight;
         }
-        const cols = defaultWidth
         let pixelLoc = x + y*defaultWidth//1D array
         this.displayPixels[pixelLoc] ^= 1; //switch on and off
 
@@ -61,18 +61,18 @@ class visualsrender {
     render(){
         // let bool = (el) => el === 1 || el === true;
         // console.log(this.displayPixels.some(bool))
-        this.resetCanvas()
+        this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height)
         for(let i = 0; i < 2048; i++){
             let cellColor = "#000000"
             let coords = [i % defaultWidth,Math.floor(i / defaultWidth)]
             coords = coords.map(el => el * this.scale)
             let X = coords[0],Y=coords[1]
-            if(this.displayPixels[i] === 1){ //===1
+            if(this.displayPixels[i] === 1){
                 cellColor = "#107D1C"
             }
             //!this.ctx.beginPath();
             this.ctx.fillStyle = cellColor;
-            this.ctx.fillRect = (X,Y,this.scale,this.scale) //default is min 1
+            this.ctx.fillRect(X,Y,this.scale,this.scale) //default is min 1
             
         }
     }

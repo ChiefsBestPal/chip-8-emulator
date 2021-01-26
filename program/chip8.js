@@ -9,35 +9,33 @@ import CPU from './CPU.js'
 
 const cpu = new CPU(); 
 
-var CLOCK_SPEED = 16;
+var CLOCK_SPEED = 10;
 function loadROM(programName){
         
     // @param {array Buffer} ROM is read
     
     //program read are typed as ArrayBuffer//! USE FILE READER***************************************************************************
-    const request = new XMLHttpRequest;
+    const request = new XMLHttpRequest();
     // request.onreadystatechange = function() {
     //     if (this.readyState == 4 && this.status == 200) {
     //       callback.call(this, this.response);
     //     }
     //   };
     //console.log(this.RAM)
-    console.log(cpu.RAM)
     request.onload = function() {
-        console.log(cpu.RAM)
         if (request.response){
-
-            cancelAnimationFrame(loop);//! Maybe err
-            cpu.loadSprites();      //!Maybe err
-            let program = new Uint8Array(request.response)
-        
-            for (let pos = 0; pos < program.length; pos++){ //starts at ix 512 (bit)
+            // cancelAnimationFrame(loop);//! Maybe err
+            let program = new Uint8Array(request.response) 
+            
+            for (let pos = 0; pos < program.length; pos++){ //starts at ix 512 (bit) --> //? Load Program onto memory
                 cpu.RAM[0x200 + pos] = program[pos]
             }
-            loop = requestAnimationFrame(tick)//! maybe err
+            console.log("request onload", Array.from(cpu.RAM.slice(0x200, 0x284)).map(e => e.toString(16)).join(" "));
+            // loop = requestAnimationFrame(tick)//! maybe err
+            cpu.keyboard.await = false;
         }
     }
-    const url = "./ROMS/programs/"
+    const url = "./ROMS/"
     request.open('GET',url + programName);//removed GET args[0]//3rdparam: true
     request.responseType = 'arraybuffer'
 
@@ -53,24 +51,35 @@ function fetch (memory) {//fetch next instruction at tick
     return memory[cpu.PC] << 8 | memory[cpu.PC + 1];
 };
 
+const hex = (n) => n.toString(16).padStart(4, "0");
+
 function cycle() {
+    // console.log("cycle");
+    if (cpu.PC > 4096) {
+        console.error("PC is out of range");
+        clearInterval(interval)
+    };
     for (let i = 0; i < CLOCK_SPEED; i++) {
         if (!cpu.keyboard.await) {
             let opcode = fetch(cpu.RAM)
-            cpu.PC += 2
+
+            if ((opcode & 0xF000) == 0x1000 && cpu.PC == (opcode & 0x0FFF)) {
+                console.log("Infinite loop, clearing interval...");
+                clearInterval(interval);
+            };
+
+            // if (cpu.PC < 580)
+            console.log("fetching next instruction", "PC:", hex(cpu.PC), "opcode:", hex(opcode));
             cpu.executeFromInstructionSet(opcode);
+            cpu.PC += 2
         }
     }
 
     if (!cpu.keyboard.await) {
         cpu.refreshTimers();
     }
-
+    
     if (cpu.soundTimer > 0) {
-        // ? This will play the audio at each cycle
-        // which means it will make a chaotic sound
-        // unless your sound generator only generates sound
-        // for 1/60 s
         cpu.audio.play(440);
     } 
     else {
@@ -92,8 +101,8 @@ function init() {
 	startTime = then;
 
     cpu.loadSprites();
-	loadROM('IBM Logo.ch8');
-	loop = requestAnimationFrame(tick);
+    loadROM('IBM Logo.ch8');
+	loop = requestAnimationFrame(tick); //! maybe err
 }
 
 function tick() {
@@ -104,17 +113,18 @@ function tick() {
 		cycle();
 	}
 
-    loop = requestAnimationFrame(tick);
+    loop = requestAnimationFrame(tick); //!maybe err
 }
 
 // init();
-
+let interval;
 const init2 = () => {
     cpu.loadSprites();
-	loadROM('IBM Logo.ch8');
-    setInterval(cycle, 1000/60);
+    loadROM('programs/IBM Logo.ch8');
+    console.log("cpu ram slice", cpu.RAM.slice(0x200, 0x284));
+    interval = setInterval(cycle, 1000/60);
 };
 
 init2();
 
-console.log('sdad')
+console.log('end of chip8.js');

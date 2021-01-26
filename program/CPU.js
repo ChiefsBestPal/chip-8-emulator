@@ -15,7 +15,7 @@ class CPU {
         this.keyboard = keyboard;
         this.audio = audio;
 
-        this.keyboard.await = false
+        this.keyboard.await = true;
 
         //! allocated memory
         this.RAM = new Uint8Array(4096); //0x000:0 -> 0xFFF:4095 Buffer properties and index limit at 0 and 255
@@ -113,12 +113,14 @@ class CPU {
                 break;
             case 0x1000://1nnn - JP addr
                 //Jump to location nnn.
-                this.PC = 0x0FFF & opcode
+                this.PC = 0x0FFF & opcode;
+                this.PC -= 2;
                 break;
             case 0x2000://2nnn - CALL addr
                 //Call subroutine at nnn.
                 this.stack[this.SP++] = this.PC
                 this.PC = 0x0FFF & opcode
+                this.PC -= 2; //!HERE
                 break;
             case 0x3000://3xkk - SE Vx, byte
                 //Skip next instruction if Vx = kk.
@@ -221,23 +223,21 @@ class CPU {
             case 0xD000://Dxyn - DRW Vx, Vy, nibble
                 //Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
                 this.V[0xF] = 0;
-                let location = this.I;
+                const location = this.I;
                 //sprite: 8xn
-                let sprite_width =  parseInt(0xFF,10).toString(2).length //8
-                let sprite_layers = 0x000F & opcode //n
+                const sprite_width =  parseInt(0xFF,10).toString(2).length // 8
+                const sprite_layers = 0x000F & opcode // n
 
                 for(let row = 0; row < sprite_layers; ++row){
-                    let sprite = this.RAM[location + row]//loc++ 
+                    let sprite = this.RAM[location + row]; // loc++ 
                     for(let col = 0;col < sprite_width;++col){
-                        let bleftmost = sprite & (0x0080 >> row)
-                        if (bleftmost !== 0){
-                            // let VISUAL = new visualsrender(10)
-                            if(visuals.drawPixel(this.V[x] + col,this.V[y]+row) === 1){
-                                this.V[0xF] = 1; //XORed pixel = erased
+                        //!const bleftmost = sprite & (0x0080 >> row);
+                        if ((sprite & 0x0080) != 0){
+                            if(this.visuals.drawPixel(this.V[x] + col,this.V[y] + row) === 1){
+                                this.V[0xF] = 1; // XORed pixel = erased
                             }
-                            // this.visuals = VISUAL 
                         }
-                        sprite = sprite << 1//last should be 0000 0000
+                        sprite = sprite << 1 // pad / last should be 0000 0000
                     }
                 }
                 break;
@@ -273,7 +273,7 @@ class CPU {
                         this.keyboard.SetKeyPress = function(key) { //dont use arrow func with bind and this obj
                           this.V[x] = key
                           this.keyboard.await = false
-                        }.bind(this).call(this)
+                        }.bind(this)//?.call(this)
 
                         break;
                     case 0x0015://Fx15 - LD DT, Vx
