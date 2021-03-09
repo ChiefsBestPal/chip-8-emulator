@@ -15,7 +15,7 @@ class CPU {
         this.keyboard = keyboard;
         this.audio = audio;
 
-        this.keyboard.await = true;
+        this.keyboard.await = false;//!
 
         //! allocated memory
         this.RAM = new Uint8Array(4096); //0x000:0 -> 0xFFF:4095 Buffer properties and index limit at 0 and 255
@@ -105,8 +105,7 @@ class CPU {
                         break;
                     case 0x00EE:// 00EE - RET
                         // Return from a subroutine.
-                        this.PC = this.stack[this.SP]
-                        this.SP--
+                        this.PC = this.stack[--this.SP]
                         break;
                 }
         
@@ -218,7 +217,7 @@ class CPU {
                 break;
             case 0xC000://Cxkk - RND Vx, byte
                 //Set Vx = random byte AND kk.
-                this.V[x] = Math.random() * 256 | 0 & Uint8(0x00FF & opcode)
+                this.V[x] = (Math.random() * 256 | 0) & Uint8(0x00FF & opcode)
                 break;
             case 0xD000://Dxyn - DRW Vx, Vy, nibble
                 //Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.

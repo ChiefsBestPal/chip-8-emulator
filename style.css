@@ -1,6 +1,70 @@
-canvas {
-  border: 2px solid black;
+canvas{
+  position: absolute;
+  top: 0;
+  left: 100;
+  right: 0;
+
+  
 }
+/*! use --clip-path: polygon() */
+
+
+
+/* #container {
+  position: relative;
+}
+#container canvas, #overlay {
+  
+  position: absolute;
+}
+
+  /* background-color: #63a91f;
+  background-image: linear-gradient(-45deg, #63a91f 0%, #1a512e 74%);
+  opacity: 0.9;
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+} */
+  
+
+
+/* body {
+  background-color: #63a91f;
+  background-image: linear-gradient(-45deg, #63a91f 0%, #1a512e 74%);
+  opacity: 1;
+  background-size: 400% 400%;
+  animation: gradient 105s ease infinite;
+}  */
+
+
+/* @keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+} */
+
+
 /* #mainScreen {
   position: relative;
 } */
+/* :root {
+  --size: 110vh;
+  --s: calc(var(--size) / 6);
+  --bor: calc(var(--size) / 30);
+  --boxShadow: calc(var(--size) / 12);
+} */
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: rgb(177, 204, 185);
+  background-color: grey;
+  background-image: linear-gradient(147deg, #495850 0%, #000000 74%);
+  overflow:hidden;
+}

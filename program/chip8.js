@@ -16,26 +16,19 @@ function loadROM(programName){
     
     //program read are typed as ArrayBuffer//! USE FILE READER***************************************************************************
     const request = new XMLHttpRequest();
-    // request.onreadystatechange = function() {
-    //     if (this.readyState == 4 && this.status == 200) {
-    //       callback.call(this, this.response);
-    //     }
-    //   };
-    //console.log(this.RAM)
     request.onload = function() {
         if (request.response){
-            // cancelAnimationFrame(loop);//! Maybe err
             let program = new Uint8Array(request.response) 
             
             for (let pos = 0; pos < program.length; pos++){ //starts at ix 512 (bit) --> //? Load Program onto memory
                 cpu.RAM[0x200 + pos] = program[pos]
             }
-            console.log("request onload", Array.from(cpu.RAM.slice(0x200, 0x284)).map(e => e.toString(16)).join(" "));
-            // loop = requestAnimationFrame(tick)//! maybe err
+            // console.log("request onload", Array.from(cpu.RAM.slice(0x200, 0x284)).map(e => e.toString(16)).join(" "));
             cpu.keyboard.await = false;
         }
     }
-    const url = "./ROMS/"
+    //const url = "./ROMS/"
+    const url = "./"
     request.open('GET',url + programName);//removed GET args[0]//3rdparam: true
     request.responseType = 'arraybuffer'
 
@@ -90,41 +83,17 @@ function cycle() {
     
 };
 
+const fps = 60;
 
-let loop;
-
-let fps = 60, fpsInterval, startTime, now, then, delta;
-
-function init() {
-	fpsInterval = 1000 / fps;
-	then = Date.now(); //setInterval
-	startTime = then;
-
-    cpu.loadSprites();
-    loadROM('IBM Logo.ch8');
-	loop = requestAnimationFrame(tick); //! maybe err
-}
-
-function tick() {
-	now = Date.now();
-	delta = now - then; //!DEBUG!!!!!!!!!!!!!
-
-	if (delta > fpsInterval) {
-		cycle();
-	}
-
-    loop = requestAnimationFrame(tick); //!maybe err
-}
-
-// init();
 let interval;
-const init2 = () => {
+const init = () => {
     cpu.loadSprites();
-    loadROM('programs/IBM Logo.ch8');
+    //loadROM("testProg.ch8")
+    loadROM("ROMS/hires/Hires Maze [David Winter, 199x].ch8")
     console.log("cpu ram slice", cpu.RAM.slice(0x200, 0x284));
-    interval = setInterval(cycle, 1000/60);
+    interval = setInterval(cycle, 1000/fps);
 };
 
-init2();
+init();
 
 console.log('end of chip8.js');

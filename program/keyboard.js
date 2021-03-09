@@ -62,7 +62,7 @@ class Keyboard { //make circuit for this !
         //   }
         let key = this.KEYMAP[event.key];
         this.pressedKeys[key] = true;
-        if(this.await && this.KEYMAP.hasOwnProperty(toString(event.key).toLowerCase()) && this.SetKeyPress !== null){ //!await may cause errors
+        if(this.KEYMAP.hasOwnProperty(event.key) && this.SetKeyPress !== null && this.await){ //!await may cause errors
             console.log('test')
             this.SetKeyPress(key);
             this.SetKeyPress = null
